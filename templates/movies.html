@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}电影列表 — 豆瓣电影 TOP250{% endblock %}
+
+{% block content %}
+<section class="breadcrumbs" style="padding-top: 120px;">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+      <h2>电影列表</h2>
+      <ol>
+        <li><a href="{{ url_for('web.index') }}">首页</a></li>
+        <li>电影列表</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="team" style="padding: 40px 0;">
+  <div class="container">
+    <!-- Search & Filter -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <form method="GET" action="{{ url_for('web.movie_list') }}" class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label small text-muted">关键词</label>
+            <input type="text" class="form-control" name="keyword" placeholder="电影名称 / 简介" value="{{ keyword }}">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small text-muted">最低评分</label>
+            <select class="form-control" name="min_score">
+              <option value="0" {% if min_score == 0 %}selected{% endif %}>不限</option>
+              <option value="9" {% if min_score == 9 %}selected{% endif %}>9.0+</option>
+              <option value="8" {% if min_score == 8 %}selected{% endif %}>8.0+</option>
+              <option value="7" {% if min_score == 7 %}selected{% endif %}>7.0+</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small text-muted">类型</label>
+            <select class="form-control" name="genre">
+              <option value="">全部</option>
+              {% for g in all_genres %}
+              <option value="{{ g }}" {% if genre == g %}selected{% endif %}>{{ g }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-primary btn-block" style="width:100%;">
+              <i class="bx bx-search"></i> 搜索
+            </button>
+          </div>
+          <div class="col-md-2">
+            <a href="{{ url_for('web.movie_list') }}" class="btn btn-outline-secondary btn-block" style="width:100%;">重置</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Result Info -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <span class="text-muted">共 <strong>{{ total }}</strong> 部电影</span>
+      <span class="text-muted">第 {{ page }} / {{ total_pages }} 页</span>
+    </div>
+
+    <!-- Movie Table -->
+    <div class="table-responsive">
+      <table class="table table-hover table-bordered">
+        <thead class="thead-dark">
+          <tr>
+            <th width="50">#</th>
+            <th>中文名</th>
+            <th>外文名</th>
+            <th width="80">评分</th>
+            <th width="100">评价数</th>
+            <th>简介</th>
+            <th>详情</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for movie in movies %}
+          <tr>
+            <td>{{ movie.id }}</td>
+            <td>
+              <a href="{{ movie.info_link }}" target="_blank" title="打开豆瓣页面">
+                {{ movie.cname }}
+              </a>
+            </td>
+            <td>{{ movie.ename or '-' }}</td>
+            <td>
+              <span class="badge badge-warning" style="font-size: 0.9rem;">{{ movie.score }}</span>
+            </td>
+            <td>{{ movie.rated }}</td>
+            <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              {{ movie.introduction or '暂无' }}
+            </td>
+            <td>
+              <a href="{{ url_for('web.movie_detail', movie_id=movie.id) }}" class="btn btn-sm btn-outline-info">详情</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="text-center py-5 text-muted">没有找到匹配的电影</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+    <nav>
+      <ul class="pagination justify-content-center">
+        <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+          <a class="page-link" href="{{ url_for('web.movie_list', page=page-1, keyword=keyword, min_score=min_score, max_score=max_score, genre=genre) }}">&laquo;</a>
+        </li>
+        {% for p in range([1, page-2]|max, [total_pages+1, page+3]|min) %}
+        <li class="page-item {% if p == page %}active{% endif %}">
+          <a class="page-link" href="{{ url_for('web.movie_list', page=p, keyword=keyword, min_score=min_score, max_score=max_score, genre=genre) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+        <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+          <a class="page-link" href="{{ url_for('web.movie_list', page=page+1, keyword=keyword, min_score=min_score, max_score=max_score, genre=genre) }}">&raquo;</a>
+        </li>
+      </ul>
+    </nav>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

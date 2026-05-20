@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}关于 — 豆瓣电影 TOP250{% endblock %}
+
+{% block content %}
+<section class="breadcrumbs" style="padding-top: 120px;">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+      <h2>关于</h2>
+      <ol>
+        <li><a href="{{ url_for('web.index') }}">首页</a></li>
+        <li>关于</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section style="padding: 60px 0;">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <div class="card shadow-sm">
+          <div class="card-body p-5">
+            <h3>MovieVizCrawler</h3>
+            <p class="text-muted">版本 {{ app_version }}</p>
+            <hr>
+
+            <h5>项目简介</h5>
+            <p>
+              MovieVizCrawler 是一个基于 Flask 的豆瓣电影 TOP250 数据可视化平台。
+              它抓取豆瓣电影 TOP250 榜单数据，提供数据浏览、多维度统计分析和 RESTful API 服务。
+            </p>
+
+            <h5>技术栈</h5>
+            <ul>
+              <li><strong>后端：</strong> Flask + SQLAlchemy + SQLite</li>
+              <li><strong>前端：</strong> Bootstrap + jQuery + ECharts</li>
+              <li><strong>数据源：</strong> 豆瓣电影 TOP250</li>
+            </ul>
+
+            <h5>功能特性</h5>
+            <ul>
+              <li>电影列表浏览，支持关键词搜索、评分筛选、类型筛选</li>
+              <li>电影详情页，展示完整信息</li>
+              <li>多维度数据分析（评分分布、年份趋势、类型占比）</li>
+              <li>完整 RESTful JSON API</li>
+              <li>响应式设计，支持移动端</li>
+            </ul>
+
+            <h5>API 接口</h5>
+            <p>项目提供 RESTful API，接口地址以 <code>/api/</code> 开头：</p>
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>接口</th>
+                  <th>说明</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><code>GET /api/movies</code></td><td>电影列表（支持搜索筛选）</td></tr>
+                <tr><td><code>GET /api/movies/&lt;id&gt;</code></td><td>电影详情</td></tr>
+                <tr><td><code>GET /api/stats/score</code></td><td>评分分布</td></tr>
+                <tr><td><code>GET /api/stats/year</code></td><td>年份分布</td></tr>
+                <tr><td><code>GET /api/stats/genre</code></td><td>类型分布</td></tr>
+                <tr><td><code>GET /api/overview</code></td><td>数据概览</td></tr>
+              </tbody>
+            </table>
+
+            <h5>数据来源</h5>
+            <p>
+              电影数据来源于 <a href="https://movie.douban.com/top250" target="_blank">豆瓣电影 TOP250</a>，
+              仅用于学习和展示目的。
+            </p>
+
+            <h5>技术博客</h5>
+            <p>
+              <a href="https://blog.csdn.net/" target="_blank">CSDN</a> |
+              <a href="https://aistudio.baidu.com/" target="_blank">AI Studio</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

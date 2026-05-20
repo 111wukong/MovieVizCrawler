@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}数据分析 — 豆瓣电影 TOP250{% endblock %}
+
+{% block extra_head %}
+<script src="{{ url_for('static', filename='assets/js/echarts.min.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<section class="breadcrumbs" style="padding-top: 120px;">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+      <h2>数据分析</h2>
+      <ol>
+        <li><a href="{{ url_for('web.index') }}">首页</a></li>
+        <li>数据分析</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section style="padding: 40px 0;">
+  <div class="container">
+    <!-- Overview -->
+    <div class="alert alert-info">
+      <i class="bx bx-info-circle"></i>
+      共收录 <strong>{{ total }}</strong> 部电影，以下是从评分、年份、类型三个维度的统计分析。
+    </div>
+
+    <div class="row">
+      <!-- Score Distribution -->
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="bx bx-star text-warning"></i> 评分分布</h5>
+          </div>
+          <div class="card-body">
+            <div id="scoreChart" style="height: 400px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Rated -->
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="bx bx-trophy text-warning"></i> 评分最高 TOP 10</h5>
+          </div>
+          <div class="card-body">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>电影</th>
+                  <th>评分</th>
+                  <th>评价数</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for m in top_rated %}
+                <tr>
+                  <td>{{ loop.index }}</td>
+                  <td><a href="{{ url_for('web.movie_detail', movie_id=m.id) }}">{{ m.cname }}</a></td>
+                  <td><span class="badge badge-warning">{{ m.score }}</span></td>
+                  <td>{{ m.rated }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Year Distribution -->
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="bx bx-calendar text-primary"></i> 年份分布</h5>
+          </div>
+          <div class="card-body">
+            <div id="yearChart" style="height: 400px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Genre Distribution -->
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="bx bx-category text-success"></i> 类型分布</h5>
+          </div>
+          <div class="card-body">
+            <div id="genreChart" style="height: 400px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Most Rated -->
+      <div class="col-lg-12 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="bx bx-group text-info"></i> 评价人数最多 TOP 10</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>电影</th>
+                    <th>评分</th>
+                    <th>评价人数</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for m in most_rated %}
+                  <tr>
+                    <td>{{ loop.index }}</td>
+                    <td><a href="{{ url_for('web.movie_detail', movie_id=m.id) }}">{{ m.cname }}</a></td>
+                    <td><span class="badge badge-warning">{{ m.score }}</span></td>
+                    <td>{{ m.rated }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+$(document).ready(function() {
+  // --- Score Distribution ---
+  var scoreChart = echarts.init(document.getElementById('scoreChart'));
+  scoreChart.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: {{ score_data.scores|tojson }},
+      axisLabel: { rotate: 45 }
+    },
+    yAxis: { type: 'value', name: '电影数量' },
+    series: [{
+      type: 'bar',
+      data: {{ score_data.counts|tojson }},
+      itemStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: '#f39c12' },
+          { offset: 1, color: '#f1c40f' }
+        ])
+      },
+      barMaxWidth: 40
+    }]
+  });
+
+  // --- Year Distribution ---
+  var yearChart = echarts.init(document.getElementById('yearChart'));
+  yearChart.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      data: {{ year_data.years|tojson }},
+      axisLabel: { rotate: 45 }
+    },
+    yAxis: { type: 'value', name: '电影数量' },
+    series: [{
+      type: 'bar',
+      data: {{ year_data.counts|tojson }},
+      itemStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: '#3498db' },
+          { offset: 1, color: '#2ecc71' }
+        ])
+      },
+      barMaxWidth: 40
+    }]
+  });
+
+  // --- Genre Distribution ---
+  var genreChart = echarts.init(document.getElementById('genreChart'));
+  genreChart.setOption({
+    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+    series: [{
+      type: 'pie',
+      radius: ['30%', '70%'],
+      center: ['50%', '55%'],
+      data: [
+        {% for i in range(genre_data.genres|length) %}
+        { value: {{ genre_data.counts[i] }}, name: '{{ genre_data.genres[i] }}' },
+        {% endfor %}
+      ],
+      label: { formatter: '{b}: {d}%' },
+      emphasis: {
+        itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' }
+      }
+    }]
+  });
+
+  // Resize charts on window resize
+  $(window).on('resize', function() {
+    scoreChart.resize();
+    yearChart.resize();
+    genreChart.resize();
+  });
+});
+</script>
+{% endblock %}

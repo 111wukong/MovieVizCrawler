@@ -1,47 +1,32 @@
-from flask import Flask,render_template
-import sqlite3
-app = Flask(__name__)
+"""
+MovieVizCrawler — 豆瓣电影 TOP250 数据可视化平台
 
+启动入口:
+    python app.py               # 开发模式
+    FLASK_ENV=production python app.py   # 生产模式
 
-@app.route('/')
-def hello_world():
-    return render_template("index.html")
-@app.route('/index')
-def home():
-    return render_template("index.html")
-@app.route('/movie')
-def movie():
-    datalist = []
-    con = sqlite3.connect("movie.db")
-    cur = con.cursor()
-    sql = "select * from movie250"
-    data = cur.execute(sql)
-    for item in data:
-        datalist.append(item)
-    cur.close()
-    con.close()
-    return render_template("movie.html",movies = datalist)
-@app.route('/score')
-def score():
-    score = []      #评分列表
-    num = []        #每个评分所统计的电影数量
-    con = sqlite3.connect("movie.db")
-    cur = con.cursor()
-    sql = "select score,count(score) from movie250 group by score"
-    data = cur.execute(sql)
-    for item in data:
-        score.append(item[0])
-        num.append(item[1])
-    cur.close()
-    con.close()
-    return render_template("score.html",score = score,num = num)
-@app.route('/word')
-def word():
-    return render_template("word.html")
-@app.route('/team')
-def team():
-    return render_template("team.html")
+环境变量:
+    FLASK_ENV: development / production / testing
+    DATABASE_URL: 数据库连接字符串（默认 SQLite）
+    SECRET_KEY: Session 密钥
+    PORT: 端口号（默认 5000）
+"""
 
+import os
+import sys
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# 确保项目根目录在 Python 路径中
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from movie_viz import create_app
+
+app = create_app()
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    debug = os.environ.get("FLASK_ENV", "development") == "development"
+    app.run(
+        host="0.0.0.0",
+        port=port,
+        debug=debug,
+    )
