@@ -95,11 +95,13 @@ def _register_blueprints(app: Flask) -> None:
     """注册路由蓝图"""
     from movie_viz.routes.web import web_bp
     from movie_viz.routes.api import api_bp
+    from movie_viz.routes.ai import ai_bp
 
     app.register_blueprint(web_bp)
     app.register_blueprint(api_bp)
+    app.register_blueprint(ai_bp)
 
-    app.logger.debug("蓝图注册完成: web, api")
+    app.logger.debug("蓝图注册完成: web, api, ai")
 
 
 def _register_error_handlers(app: Flask) -> None:

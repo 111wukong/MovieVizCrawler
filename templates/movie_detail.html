@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 {% block title %}{{ movie.cname }} — 豆瓣电影 TOP250{% endblock %}
 
+{% block extra_head %}
+<style>
+.ai-analysis { background: #f0f4ff; border-left: 4px solid #4a90d9; padding: 20px; border-radius: 0 8px 8px 0; margin-top: 20px; line-height: 1.8; }
+.ai-analysis.loading { opacity: 0.6; }
+.ai-btn { transition: all 0.2s; }
+.ai-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(74,144,217,0.3); }
+</style>
+{% endblock %}
+
 {% block content %}
 <section class="breadcrumbs" style="padding-top: 120px;">
   <div class="container">
@@ -65,21 +74,27 @@
             </div>
             {% endif %}
 
-            {% set parsed = movie.info %}
-            {% if parsed %}
             <div class="mb-3">
               <h6>详细信息</h6>
-              <pre style="white-space: pre-wrap; font-family: inherit; background: #f8f9fa; padding: 15px; border-radius: 5px;">{{ parsed }}</pre>
+              <pre style="white-space: pre-wrap; font-family: inherit; background: #f8f9fa; padding: 15px; border-radius: 5px;">{{ movie.info or '暂无' }}</pre>
             </div>
-            {% endif %}
 
-            <div class="mt-3">
+            <div class="d-flex gap-2 flex-wrap">
               <a href="{{ movie.info_link }}" class="btn btn-danger" target="_blank">
                 <i class="bx bx-link-external"></i> 打开豆瓣页面
               </a>
+              <button class="btn btn-primary ai-btn" onclick="analyzeMovie({{ movie.id }})">
+                <i class="bx bx-brain"></i> AI 解读
+              </button>
               <a href="{{ url_for('web.movie_list') }}" class="btn btn-outline-secondary">
                 <i class="bx bx-arrow-back"></i> 返回列表
               </a>
+            </div>
+
+            <!-- AI Analysis -->
+            <div id="aiAnalysis" class="ai-analysis" style="display: none;">
+              <h6><i class="bx bx-brain" style="color: #4a90d9;"></i> AI 深度解读</h6>
+              <div id="aiContent"></div>
             </div>
           </div>
         </div>
@@ -87,4 +102,32 @@
     </div>
   </div>
 </section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function analyzeMovie(movieId) {
+  const container = $('#aiAnalysis');
+  const content = $('#aiContent');
+
+  container.show();
+  content.html('<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-muted">AI 正在分析影片...</p></div>');
+
+  $.ajax({
+    url: '/ai/api/analyze/' + movieId,
+    method: 'GET',
+    success: function(resp) {
+      if (resp.reply) {
+        const formatted = resp.reply
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\n/g, '<br>');
+        content.html('<div class="ai-result">' + formatted + '</div>');
+      }
+    },
+    error: function() {
+      content.html('<div class="text-danger">分析服务暂时不可用</div>');
+    }
+  });
+}
+</script>
 {% endblock %}
