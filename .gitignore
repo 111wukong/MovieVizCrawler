@@ -1,35 +1,62 @@
-# Byte-compiled
+# Python
 __pycache__/
 *.py[cod]
+*.so
 *.egg-info/
-
-# Environment
-.env
+dist/
+build/
 .venv/
 venv/
 env/
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.onnx
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
+.DS_Store
 
-# Database
-*.db
-data/
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Node
+node_modules/
+.next/
+out/
+
+# Env
+.env
+.env.local
+.env.*.local
 
 # Logs
 *.log
-instance/
+logs/
 
-# OS
-.DS_Store
-Thumbs.db
+# Images (unless intentionally included)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
 
-# Flask
-instance/
+# Database
+*.db
+*.sqlite
+*.sqlite3
 
-# Docker
-docker-compose.yml
-.idea/
+# Vendor / third-party
+vendor/
+static/assets/vendor/
+
+# Misc
+*.zip
+*.tar.gz
+*.tgz
